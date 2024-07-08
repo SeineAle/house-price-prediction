@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-size: cover;
+        }
+
+        header, footer {
+            background-color: rgba(51, 51, 51, 0.5);
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(13, 244, 248, 0.5);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        form {
+            background-color: rgba(62, 144, 202, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #predictedPrice {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>House Price Prediction</h1>
+    </header>
+    <main>
+        <p>Welcome to House Price Prediction Model!</p>
+
+        <form id="predictionForm">
+            <label for="beds">Bedrooms:</label>
+            <select id="beds" name="beds">
+                <option value="" disabled selected>Select number of bedrooms</option>
+                {% for bedroom in bedrooms %}
+                    <option value="{{ bedroom }}">{{ bedroom }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="baths">Baths:</label>
+            <select id="baths" name="baths">
+                <option value="" disabled selected>Select number of bathrooms</option>
+                {% for bathroom in bathrooms %}
+                    <option value="{{ bathroom }}">{{ bathroom }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="size">Size:</label>
+            <select id="size" name="size">
+                <option value="" disabled selected>Select size of the house</option>
+                {% for house_size in sizes %}
+                    <option value="{{ house_size }}">{{ house_size }} sqft</option>
+                {% endfor %}
+            </select>
+
+            <label for="zip_code">Zip Code:</label>
+            <select id="zip_code" name="zip_code">
+                <option value="" disabled selected>Select zip code</option>
+                {% for zip_code in zip_codes %}
+                    <option value="{{ zip_code }}">{{ zip_code }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="button" onclick="sendData()">Predict Price</button>
+
+            <div id="predictedPrice"></div>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 House Price Prediction. All rights reserved.</p>
+    </footer>
+    <script>
+        function fetchOptions(endpoint, dropdownId) {
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    const dropdown = document.getElementById(dropdownId);
+                    dropdown.innerHTML = '<option value="" disabled selected>Select an option</option>';
+                    data.forEach(option => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        dropdown.appendChild(optionElement);
+                    });
+                });
+        }
+
+        window.onload = function() {
+            fetchOptions('/bedrooms', 'beds');
+            fetchOptions('/bathrooms', 'baths');
+            fetchOptions('/sizes', 'size');
+            fetchOptions('/zip_codes', 'zip_code');
+        };
+
+        function sendData() {
+            const form = document.getElementById('predictionForm');
+            const formData = new FormData(form);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(price => {
+                document.getElementById("predictedPrice").innerHTML = "Price: INR " + price;
+            });
+        }
+    </script>
+</body>
+</html>
